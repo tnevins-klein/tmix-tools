@@ -1,7 +1,8 @@
 import sqlite3
+import pandas
 
 
-def setup_table(con):
+def setup_table(con: sqlite3.Connection):
     cur = con.cursor()
     table_setup_statements = [
         "CREATE TABLE IF NOT EXISTS `actorGroups` (`id`	INTEGER PRIMARY KEY AUTOINCREMENT,`name`	TEXT,`data`	TEXT)",
@@ -17,7 +18,6 @@ def setup_table(con):
         "CREATE TABLE IF NOT EXISTS `snippetCache` (`snippet`	INTEGER PRIMARY KEY,`name`	TEXT)",
         "CREATE UNIQUE INDEX IF NOT EXISTS `actorProfileID` ON `actorProfiles` (`actor`, `profile`)",
         "CREATE UNIQUE INDEX IF NOT EXISTS `cueID` ON `cues` (`number`, `point`)"]
-
     for statment in table_setup_statements:
         cur.execute(statment)
 
@@ -32,10 +32,19 @@ def setup_config(con: sqlite3.Connection):
         'INSERT OR REPLACE INTO positions(id,name,shortName,delay,pan,buses) VALUES (0, "Centre Stage", "CS", 0, 0,"NULL")')
 
 
+def add_cues(con: sqlite3.Connection):
+    cur = con.cursor()
+    cues = pandas.read_csv("Sound and Mics.csv", sep=",",
+                           header=2).iloc(axis=1)[2::5]
+
+    print(cues.columns)
+
+
 def main():
     con = sqlite3.connect("test.db")
     setup_table(con)
     setup_config(con)
+    add_cues(con)
     con.commit()
 
 
