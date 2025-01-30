@@ -27,7 +27,9 @@ def setup_config(con: sqlite3.Connection):
     with open("config.csv", "r") as f:
         for line in f:
             cur.execute(
-                'INSERT OR REPLACE INTO config(`param`,`value`) VALUES(?,?)', line.split(",", 1))
+                'INSERT OR REPLACE INTO config(param,value) VALUES(?,?)', line.split(",", 1))
+    cur.execute(
+        'INSERT OR REPLACE INTO positions(id,name,shortName,delay,pan,buses) VALUES (0, "Centre Stage", "CS", 0, 0,"NULL")')
 
 
 def main():
