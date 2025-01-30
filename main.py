@@ -37,11 +37,13 @@ def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
     with open("Sound and Mics.csv") as f:
         for (index, line) in enumerate(f):
-            print(index, line)
+            values = line.split(",")
+            print(values)
+            # cur.execute('INSERT OR REPLACE INTO profiles(id,channel,name,default,data) VALUES (' + str(index) + ',' )
 
 
 def main():
-    
+
     pathlib.Path("test.tmix").unlink(
         missing_ok=True
     )
