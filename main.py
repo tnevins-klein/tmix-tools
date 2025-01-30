@@ -1,5 +1,6 @@
 import sqlite3
 import pandas
+import pathlib
 import os
 
 
@@ -39,10 +40,11 @@ def add_cues(con: sqlite3.Connection):
 
 
 def main():
-    try:
-        os.remove("test.tmix")
-    except:
-        pass
+    
+    pathlib.Path("test.tmix").unlink(
+        missing_ok=True
+    )
+
     con = sqlite3.connect("test.tmix")
     setup_table(con)
     setup_config(con)
