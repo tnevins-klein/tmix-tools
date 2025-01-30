@@ -1,5 +1,6 @@
 import sqlite3
 import pandas
+import os
 
 
 def setup_table(con: sqlite3.Connection):
@@ -34,14 +35,15 @@ def setup_config(con: sqlite3.Connection):
 
 def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
-    cues = pandas.read_csv("Sound and Mics.csv", sep=",",
-                           header=2).iloc(axis=1)[2::5]
-
-    print(cues.columns)
+    cues = pandas.read_csv("Sound and Mics.csv", sep=",")
 
 
 def main():
-    con = sqlite3.connect("test.db")
+    try:
+        os.remove("test.tmix")
+    except:
+        pass
+    con = sqlite3.connect("test.tmix")
     setup_table(con)
     setup_config(con)
     add_cues(con)
