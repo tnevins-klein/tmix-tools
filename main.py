@@ -26,7 +26,6 @@ def setup_config(con: sqlite3.Connection):
     cur = con.cursor()
     with open("config.csv", "r") as f:
         for line in f:
-            print(line)
             cur.execute(
                 'INSERT OR REPLACE INTO config(`param`,`value`) VALUES(?,?)', line.split(",", 1))
 
