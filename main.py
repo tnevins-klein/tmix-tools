@@ -1,5 +1,4 @@
 import sqlite3
-import pandas
 import os
 
 
@@ -35,7 +34,9 @@ def setup_config(con: sqlite3.Connection):
 
 def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
-    cues = pandas.read_csv("Sound and Mics.csv", sep=",")
+    with open("Sound and Mics.csv") as f:
+        for (index, line) in enumerate(f):
+            print(index, line)
 
 
 def main():
