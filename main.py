@@ -35,11 +35,15 @@ def setup_config(con: sqlite3.Connection):
 
 def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
-    sql = 'INSERT OR REPLACE INTO profiles(id,channel,name,default,data) VAlUES(?,?,?,1,"NULL")'
+    sql = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     with open("Sound and Mics.csv") as f:
         data = list(map(lambda a: a.split(",")[
                     1:3] + a.split(",")[3:-1:5], f.readlines()))[2:22]
-        print(data[0], data[-1])
+        cur.execute('UPDATE config SET value=? WHERE param=?',
+                    (','.join([str(int(row[0]) - 1) for row in data[1:]]), 'channels'))
+        for row in data[1:]:
+            print(row[0], row[1])
+            cur.execute(sql, (int(row[0])-1, int(row[0])-1, row[1]))
 
 
 def main():
