@@ -1,6 +1,6 @@
 import sqlite3
 import pathlib
-import os
+import csv
 
 
 def setup_table(con: sqlite3.Connection):
@@ -26,24 +26,29 @@ def setup_table(con: sqlite3.Connection):
 def setup_config(con: sqlite3.Connection):
     cur = con.cursor()
     with open("config.csv", "r") as f:
-        for line in f:
+        for line in csv.reader(f):
             cur.execute(
-                'INSERT OR REPLACE INTO config(param,value) VALUES(?,?)', line.split(",", 1))
+                'INSERT OR REPLACE INTO config(param,value) VALUES(?,?)', line)
     cur.execute(
         'INSERT OR REPLACE INTO positions(id,name,shortName,delay,pan,buses) VALUES (0, "Centre Stage", "CS", 0, 0,"NULL")')
 
 
 def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
-    sql = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
+    actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
+    cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ")'
     with open("Sound and Mics.csv") as f:
-        data = list(map(lambda a: a.split(",")[
-                    1:3] + a.split(",")[3:-1:5], f.readlines()))[2:22]
+        data = [x[1:3] + x[3:-1:5] for x in csv.reader(f)][2:-9]
         cur.execute('UPDATE config SET value=? WHERE param=?',
-                    (','.join([str(int(row[0]) - 1) for row in data[1:]]), 'channels'))
+                    (','.join([row[0] for row in data[1:]]), 'channels'))
         for row in data[1:]:
-            print(row[0], row[1])
-            cur.execute(sql, (int(row[0])-1, int(row[0])-1, row[1]))
+            cur.execute(actor, (row[0], row[0], row[1]))
+        cols = [[x[y] for x in data] for y in range(len(data[0]))]
+        for (index, col) in enumerate(cols[2:]):
+            actors = [cols[0][i+1] + "," if x !=
+                      "" else "" for (i, x) in enumerate(col[1:])]
+            print(actors)
+            cur.execute(cue, [index, index, col[0], "".join(actors)])
 
 
 def main():
