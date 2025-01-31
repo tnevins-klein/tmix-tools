@@ -36,19 +36,34 @@ def setup_config(con: sqlite3.Connection):
 def add_cues(con: sqlite3.Connection):
     cur = con.cursor()
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
-    cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ")'
+    cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     with open("Sound and Mics.csv") as f:
-        data = [x[1:3] + x[3:-1:5] for x in csv.reader(f)][2:-9]
+        data = [x[1:4] + x[4:-1:5] for x in csv.reader(f)][2:]
         cur.execute('UPDATE config SET value=? WHERE param=?',
-                    (','.join([row[0] for row in data[1:]]), 'channels'))
+                    (','.join([row[1] for row in data[1:]]), 'channels'))
         for row in data[1:]:
-            cur.execute(actor, (row[0], row[0], row[1]))
+            cur.execute(actor, (row[1], row[1], row[2]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
         for (index, col) in enumerate(cols[2:]):
-            actors = [cols[0][i+1] + "," if x !=
-                      "" else "" for (i, x) in enumerate(col[1:])]
-            print(actors)
-            cur.execute(cue, [index, index, col[0], "".join(actors)])
+            actors = [(cols[1][i+1] + ",", cols[2][i+1].split(" ")[0], cols[0][i+1]) if x !=
+                      "" else ("", "", cols[0][i+1]) for (i, x) in enumerate(col[1:])]
+            dcas = split_actors(actors)
+            cur.execute(cue, [index, index, col[0], *dcas])
+
+
+def split_actors(actors):
+    # returns list of len 16 with first 8 being numbers and next 8 being the names for the groups to put on them
+    SATB_ports = dict(zip("SATB", [""]*4))
+    SATB_names = dict(zip("SATB", [""]*4))
+    for actor in actors:
+        SATB_ports[actor[2]] += actor[0]
+        SATB_names[actor[2]] += actor[0]
+    print(SATB_names, SATB_ports)
+    port_groups = ["".join([group[0] for group in actors[3:]][3*x:3*x+3])
+                   for x in range(5)]
+    name_groups = [" ".join([group[1] for group in actors[3:]][3*x:3*x+3])
+                   for x in range(5)]
+    return [actors[0][0], actors[1][0], actors[2][0], *port_groups, actors[0][1], actors[1][1], actors[2][1], *name_groups]
 
 
 def main():
