@@ -52,18 +52,17 @@ def add_cues(con: sqlite3.Connection):
 
 
 def split_actors(actors):
-    # returns list of len 16 with first 8 being numbers and next 8 being the names for the groups to put on them
+    # returns list of len 16 format
+    # [#,#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR,STR]
+    SATB_names = ["Soprano", "Alto", "Tennor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
-    SATB_names = dict(zip("SATB", [""]*4))
     for actor in actors:
         SATB_ports[actor[2]] += actor[0]
-        SATB_names[actor[2]] += actor[0]
-    print(SATB_names, SATB_ports)
     port_groups = ["".join([group[0] for group in actors[3:]][3*x:3*x+3])
                    for x in range(5)]
     name_groups = [" ".join([group[1] for group in actors[3:]][3*x:3*x+3])
                    for x in range(5)]
-    return [actors[0][0], actors[1][0], actors[2][0], *port_groups, actors[0][1], actors[1][1], actors[2][1], *name_groups]
+    return [actors[0][0], actors[1][0], actors[2][0], "", *SATB_ports.values(), actors[0][1], actors[1][1], actors[2][1], "", *SATB_names]
 
 
 def main():
