@@ -4,6 +4,7 @@ import sqlite3
 import pathlib
 import csv
 
+
 def setup_table(con: sqlite3.Connection):
     cur = con.cursor()
     table_setup_statements = [
@@ -38,7 +39,7 @@ def add_cues(con: sqlite3.Connection, scenes):
     cur = con.cursor()
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    with open(scenes) as f:
+    with open(scenes, "r") as f:
         data = [x for x in csv.reader(f)][2:22]
         cur.execute('UPDATE config SET value=? WHERE param=?',
                     (','.join([row[2] for row in data[1:]]), 'channels'))
@@ -69,13 +70,13 @@ def split_actors(actors):
 
 @click.command()
 @click.option(
-    "--scenes", 
-    type=click.Path(), 
+    "--scenes",
+    type=click.Path(),
     default="Sound and Mics.csv",
     help="Specifies the scenes file"
 )
 @click.option(
-    "--config_file", 
+    "--config_file",
     type=click.Path(),
     default="config.csv",
     help="specifies the internal TMix config schema. Can be extracted using a SQLite db viewer"
@@ -86,13 +87,13 @@ def split_actors(actors):
 )
 def convert(scenes, config_file, out_file):
     pathlib.Path(out_file).unlink(
-            missing_ok=True
+        missing_ok=True
     )
 
     con = sqlite3.connect(out_file)
     setup_table(con)
     setup_config(con, config_file)
-    add_cues(con, out_file)
+    add_cues(con, scenes)
     con.commit()
 
 
