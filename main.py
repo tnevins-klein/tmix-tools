@@ -1,7 +1,8 @@
+import click
+
 import sqlite3
 import pathlib
 import csv
-
 
 def setup_table(con: sqlite3.Connection):
     cur = con.cursor()
@@ -23,9 +24,9 @@ def setup_table(con: sqlite3.Connection):
         cur.execute(statment)
 
 
-def setup_config(con: sqlite3.Connection):
+def setup_config(con: sqlite3.Connection, config_file):
     cur = con.cursor()
-    with open("config.csv", "r") as f:
+    with open(config_file, "r") as f:
         for line in csv.reader(f):
             cur.execute(
                 'INSERT OR REPLACE INTO config(param,value) VALUES(?,?)', line)
@@ -33,11 +34,11 @@ def setup_config(con: sqlite3.Connection):
         'INSERT OR REPLACE INTO positions(id,name,shortName,delay,pan,buses) VALUES (0, "Centre Stage", "CS", 0, 0,"NULL")')
 
 
-def add_cues(con: sqlite3.Connection):
+def add_cues(con: sqlite3.Connection, scenes):
     cur = con.cursor()
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    with open("Sound and Mics.csv") as f:
+    with open(scenes, "r") as f:
         data = [x[1:4] + x[4:-1:5] for x in csv.reader(f)][2:]
         cur.execute('UPDATE config SET value=? WHERE param=?',
                     (','.join([row[1] for row in data[1:]]), 'channels'))
@@ -54,7 +55,7 @@ def add_cues(con: sqlite3.Connection):
 def split_actors(actors):
     # returns list of len 16 format
     # [#,#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR,STR]
-    SATB_names = ["Soprano", "Alto", "Tennor",  "Bass"]
+    SATB_names = ["Soprano", "Alto", "Tenor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
     for actor in [actors[1], *actors[5:]]:
         SATB_ports[actor[2]] += actor[0]
@@ -65,17 +66,37 @@ def split_actors(actors):
     return [actors[0][0], actors[2][0], actors[3][0], actors[4][0], *SATB_ports.values(), actors[0][1], actors[2][1], actors[3][1], actors[4][1], *SATB_names]
 
 
-def main():
-
-    pathlib.Path("test.tmix").unlink(
-        missing_ok=True
+@click.command()
+@click.option(
+    "--scenes", 
+    type=click.Path(), 
+    default="Sound and Mics.csv",
+    help="Specifies the scenes file"
+)
+@click.option(
+    "--config_file", 
+    type=click.Path(),
+    default="config.csv",
+    help="specifies the internal TMix config schema. Can be extracted using a SQLite db viewer"
+)
+@click.argument(
+    "out_file",
+    type=click.Path(),
+)
+def convert(scenes, config_file, out_file):
+    pathlib.Path(out_file).unlink(
+            missing_ok=True
     )
 
-    con = sqlite3.connect("test.tmix")
+    con = sqlite3.connect(out_file)
     setup_table(con)
-    setup_config(con)
-    add_cues(con)
+    setup_config(con, config_file)
+    add_cues(con, out_file)
     con.commit()
 
+def main():
+    pass
 
-main()
+
+
+convert()
