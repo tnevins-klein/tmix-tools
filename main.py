@@ -38,16 +38,17 @@ def add_cues(con: sqlite3.Connection, scenes):
     cur = con.cursor()
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-    with open(scenes, "r") as f:
-        data = [x[1:4] + x[4:-1:5] for x in csv.reader(f)][2:]
+    with open(scenes) as f:
+        data = [x for x in csv.reader(f)][2:22]
         cur.execute('UPDATE config SET value=? WHERE param=?',
-                    (','.join([row[1] for row in data[1:]]), 'channels'))
+                    (','.join([row[2] for row in data[1:]]), 'channels'))
         for row in data[1:]:
-            cur.execute(actor, (row[1], row[1], row[2]))
+            print(row)
+            cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
         for (index, col) in enumerate(cols[2:]):
-            actors = [(cols[1][i+1] + ",", cols[2][i+1].split(" ")[0], cols[0][i+1]) if x !=
-                      "" else ("", "", cols[0][i+1]) for (i, x) in enumerate(col[1:])]
+            actors = [(cols[2][i+1] + ",", cols[1][i+1].split(" ")[0], cols[3][i+1]) if x !=
+                      "" else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
             dcas = split_actors(actors)
             cur.execute(cue, [index, index, col[0], *dcas])
 
@@ -58,7 +59,7 @@ def split_actors(actors):
     SATB_names = ["Soprano", "Alto", "Tenor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
     for actor in [actors[1], *actors[5:]]:
-        SATB_ports[actor[2]] += actor[0]
+        SATB_ports[actor[2][0]] += actor[0]
     port_groups = ["".join([group[0] for group in actors[3:]][3*x:3*x+3])
                    for x in range(5)]
     name_groups = [" ".join([group[1] for group in actors[3:]][3*x:3*x+3])
@@ -93,10 +94,6 @@ def convert(scenes, config_file, out_file):
     setup_config(con, config_file)
     add_cues(con, out_file)
     con.commit()
-
-def main():
-    pass
-
 
 
 convert()
