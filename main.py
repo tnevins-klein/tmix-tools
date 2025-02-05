@@ -72,7 +72,7 @@ def split_actors(actors):
 @click.option(
     "--scenes",
     type=click.Path(),
-    default="Sound and Mics.csv",
+    default="tracking.csv",
     help="Specifies the scenes file"
 )
 @click.option(
