@@ -44,7 +44,6 @@ def add_cues(con: sqlite3.Connection, scenes):
         cur.execute('UPDATE config SET value=? WHERE param=?',
                     (','.join([row[2] for row in data[1:]]), 'channels'))
         for row in data[1:]:
-            print(row)
             cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
         for (index, col) in enumerate(cols[2:]):
