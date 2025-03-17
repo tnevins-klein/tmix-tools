@@ -38,7 +38,7 @@ def setup_config(con: sqlite3.Connection, config_file):
 def add_cues(con: sqlite3.Connection, scenes):
     cur = con.cursor()
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
-    cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     with open(scenes, "r") as f:
         data = [x for x in csv.reader(f)][2:21]
         cur.execute('UPDATE config SET value=? WHERE param=?',
@@ -63,7 +63,7 @@ def split_actors(actors):
     for index, r in enumerate(SATB_names):
         if len(SATB_ports[r[0]]) == 0:
             SATB_names[index] = ""
-    return [actors[0][0], actors[1][0], "", actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], "", actors[2][1], *SATB_names]
+    return [actors[0][0], actors[1][0], actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], actors[2][1], *SATB_names]
 
 
 @click.command()
