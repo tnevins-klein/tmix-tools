@@ -65,8 +65,7 @@ def split_actors(actors):
             SATB_names[index] = ""
     mains_mic = [actor[0] for actor in actors[0:3]]
     mains_name = [actor[1] for actor in actors[0:3]]
-    print(mains_mic, mains_name)
-    return [actors[0][0], actors[1][0], actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], actors[2][1], *SATB_names]
+    return [*mains_mic, *SATB_ports.values(), *mains_name, *SATB_names]
 
 
 @click.command()
