@@ -58,13 +58,13 @@ def split_actors(actors):
     # [#,#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR,STR]
     SATB_names = ["Soprano", "Alto", "Tenor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
-    for actor in [*actors[4:]]:
+    for actor in [*actors[3:]]:
         SATB_ports[actor[2][0]] += actor[0]
     port_groups = ["".join([group[0] for group in actors[3:]][3*x:3*x+3])
                    for x in range(5)]
     name_groups = [" ".join([group[1] for group in actors[3:]][3*x:3*x+3])
                    for x in range(5)]
-    return [actors[0][0], actors[1][0], actors[2][0], actors[3][0], *SATB_ports.values(), actors[0][1], actors[1][1], actors[2][1], actors[3][1], *SATB_names]
+    return [actors[0][0], actors[1][0], "", actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], "", actors[2][1], *SATB_names]
 
 
 @click.command()
