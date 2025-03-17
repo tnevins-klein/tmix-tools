@@ -46,6 +46,9 @@ def add_cues(con: sqlite3.Connection, scenes):
         for row in data[1:]:
             cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
+        # cols[1] is names
+        # cols[2] is mic numbers
+        # cols[3] is voice part
         for (index, col) in enumerate(cols[2:]):
             actors = [(cols[2][i+1] + ",", cols[1][i+1], cols[3][i+1]) if x !=
                       '' else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
