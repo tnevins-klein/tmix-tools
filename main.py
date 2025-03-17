@@ -21,8 +21,8 @@ def setup_table(con: sqlite3.Connection):
         "CREATE TABLE IF NOT EXISTS `snippetCache` (`snippet`	INTEGER PRIMARY KEY,`name`	TEXT)",
         "CREATE UNIQUE INDEX IF NOT EXISTS `actorProfileID` ON `actorProfiles` (`actor`, `profile`)",
         "CREATE UNIQUE INDEX IF NOT EXISTS `cueID` ON `cues` (`number`, `point`)"]
-    for statment in table_setup_statements:
-        cur.execute(statment)
+    for statement in table_setup_statements:
+        cur.execute(statement)
 
 
 def setup_config(con: sqlite3.Connection, config_file):
@@ -40,15 +40,16 @@ def add_cues(con: sqlite3.Connection, scenes):
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca03Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca03Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     with open(scenes, "r") as f:
-        data = [x for x in csv.reader(f)][2:22]
+        data = [x for x in csv.reader(f)][2:21]
         cur.execute('UPDATE config SET value=? WHERE param=?',
                     (','.join([row[2] for row in data[1:]]), 'channels'))
         for row in data[1:]:
             cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
+        print(cols[5])
         for (index, col) in enumerate(cols[2:]):
-            actors = [(cols[2][i+1] + ",", cols[1][i+1].split(" ")[0], cols[3][i+1]) if x !=
-                      "" else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
+            actors = [(cols[2][i+1] + ",", cols[1][i+1], cols[3][i+1]) if x !=
+                      '' else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
             dcas = split_actors(actors)
             cur.execute(cue, [index, index, col[0], *dcas])
 
@@ -60,10 +61,6 @@ def split_actors(actors):
     SATB_ports = dict(zip("SATB", [""]*4))
     for actor in [*actors[3:]]:
         SATB_ports[actor[2][0]] += actor[0]
-    port_groups = ["".join([group[0] for group in actors[3:]][3*x:3*x+3])
-                   for x in range(5)]
-    name_groups = [" ".join([group[1] for group in actors[3:]][3*x:3*x+3])
-                   for x in range(5)]
     return [actors[0][0], actors[1][0], "", actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], "", actors[2][1], *SATB_names]
 
 
@@ -78,7 +75,7 @@ def split_actors(actors):
     "--config_file",
     type=click.Path(),
     default="config.csv",
-    help="specifies the internal TMix config schema. Can be extracted using a SQLite db viewer"
+    help="specifies the internal tmix config schema. Can be extracted using a SQLite db viewer"
 )
 @click.argument(
     "out_file",
