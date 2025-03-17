@@ -46,7 +46,6 @@ def add_cues(con: sqlite3.Connection, scenes):
         for row in data[1:]:
             cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
-        print(cols[5])
         for (index, col) in enumerate(cols[2:]):
             actors = [(cols[2][i+1] + ",", cols[1][i+1], cols[3][i+1]) if x !=
                       '' else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
@@ -61,6 +60,9 @@ def split_actors(actors):
     SATB_ports = dict(zip("SATB", [""]*4))
     for actor in [*actors[3:]]:
         SATB_ports[actor[2][0]] += actor[0]
+    for index, r in enumerate(SATB_names):
+        if len(SATB_ports[r[0]]) == 0:
+            SATB_names[index] = ""
     return [actors[0][0], actors[1][0], "", actors[2][0], *SATB_ports.values(), actors[0][1], actors[1][1], "", actors[2][1], *SATB_names]
 
 
