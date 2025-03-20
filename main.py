@@ -46,7 +46,8 @@ def add_cues(con: sqlite3.Connection, scenes):
         for row in data[1:]:
             cur.execute(actor, (row[2], row[2], row[1]))
         cols = [[x[y] for x in data] for y in range(len(data[0]))]
-        # cols[1] is names
+        # cols[0] is charator names
+        # cols[1] is actor names
         # cols[2] is mic numbers
         # cols[3] is voice part
         for (index, col) in enumerate(cols[2:]):
@@ -54,21 +55,34 @@ def add_cues(con: sqlite3.Connection, scenes):
                       '' else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
             dcas = split_actors(actors)
             cur.execute(cue, [index, index, col[0], *dcas])
+#            print(index)
 
 
 def split_actors(actors):
     # returns list of len 16 format
-    # [#,#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR,STR]
+    # [#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR]
     SATB_names = ["Soprano", "Alto", "Tenor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
-    for actor in [*actors[3:]]:
-        SATB_ports[actor[2][0]] += actor[0]
-    for index, r in enumerate(SATB_names):
-        if len(SATB_ports[r[0]]) == 0:
-            SATB_names[index] = ""
-    mains_mic = [actor[0] for actor in actors[0:3]]
-    mains_name = [actor[1] for actor in actors[0:3]]
-    return [*mains_mic, *SATB_ports.values(), *mains_name, *SATB_names]
+    lead_names = []
+    lead_ports = []
+    for actor in actors:
+        if actor[1] == '':
+            continue
+        if len(lead_ports) == 3 :
+            SATB_ports[actor[2][0]] += actor[0]
+            print("leads full")
+        else:
+            lead_ports.append(actor[0])
+            lead_names.append(actor[1])
+            print("LEAD SLOT!!")
+    for _ in range(3 - len(lead_names)):
+        lead_names.append('')
+        lead_ports.append('')
+    return_values = [*lead_names, *SATB_ports.values(), *lead_ports, *SATB_names]
+    print(return_values)
+    if len(return_values) < 14:
+        print(actors)
+    return(return_values)
 
 
 @click.command()
