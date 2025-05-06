@@ -55,7 +55,6 @@ def add_cues(con: sqlite3.Connection, scenes):
                       '' else ("", "", cols[3][i+1]) for (i, x) in enumerate(col[1:])]
             dcas = split_actors(actors)
             cur.execute(cue, [index, index, col[0], *dcas])
-#            print(index)
 
 
 def split_actors(actors):
@@ -69,19 +68,18 @@ def split_actors(actors):
         if actor[1] == '':
             continue
         if len(lead_ports) == 3 :
-            SATB_ports[actor[2][0]] += actor[0]
-            print("leads full")
+            try:
+                SATB_ports[actor[2][0]] += actor[0]
+                break
+            except:
+                SATB_ports["S"] += actor[0]
         else:
-            lead_ports.append(actor[0])
-            lead_names.append(actor[1])
-            print("LEAD SLOT!!")
+            lead_ports.append(actor[1])
+            lead_names.append(actor[0])
     for _ in range(3 - len(lead_names)):
         lead_names.append('')
         lead_ports.append('')
     return_values = [*lead_names, *SATB_ports.values(), *lead_ports, *SATB_names]
-    print(return_values)
-    if len(return_values) < 14:
-        print(actors)
     return(return_values)
 
 
