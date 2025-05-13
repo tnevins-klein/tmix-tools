@@ -62,25 +62,41 @@ def split_actors(actors):
     # [#,#,#,#,#,#,#,STR,STR,STR,STR,STR,STR,STR]
     SATB_names = ["Soprano", "Alto", "Tenor",  "Bass"]
     SATB_ports = dict(zip("SATB", [""]*4))
+    backup_names = []
     lead_names = []
     lead_ports = []
+    actor_count = 0
     for actor in actors:
         if actor[1] == '':
             continue
+        actor_count += 1
         if len(lead_ports) == 3 :
             try:
                 SATB_ports[actor[2][0]] += actor[0]
                 break
             except:
                 SATB_ports["S"] += actor[0]
+            backup_names.append(actor[1])
         else:
-            lead_ports.append(actor[1])
-            lead_names.append(actor[0])
-    for _ in range(3 - len(lead_names)):
-        lead_names.append('')
-        lead_ports.append('')
-    return_values = [*lead_names, *SATB_ports.values(), *lead_ports, *SATB_names]
-    return(return_values)
+            lead_names.append(actor[1])
+            lead_ports.append(actor[0])
+    if  actor_count < 7:
+        for value,name in zip(SATB_ports.values(),backup_names):
+            if value == '':
+                continue
+            lead_names.append(name)
+            lead_ports.append(value)
+        for _ in range(7-len(lead_names)):
+            lead_names.append('')
+            lead_ports.append('')
+        return_values = [*lead_ports,  *lead_names]
+        return(return_values)
+    else:
+        for _ in range(3 - len(lead_names)):
+            lead_names.append('')
+            lead_ports.append('')
+        return_values = [*lead_ports, *SATB_ports.values(), *lead_names, *SATB_names]
+        return(return_values)
 
 
 @click.command()
