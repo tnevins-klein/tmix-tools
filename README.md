@@ -11,6 +11,6 @@ updated .gitignore to add *.tmix and updated README.md to have a quick start gui
 pipenv shell
 ```
 ```
-python3 main PATH_TO_TARGET --scene FILE.csv
+python3 main PATH_TO_TARGET --scene FILE.csv OUTPUT_FILE_PATH
 ```
 
