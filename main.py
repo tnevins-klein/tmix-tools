@@ -40,7 +40,7 @@ def add_cues(con: sqlite3.Connection, scenes):
     actor = 'INSERT OR REPLACE INTO profiles(id,channel,name,`default`,data) VALUES(?,?,?,1,"")'
     cue = 'INSERT OR REPLACE INTO cues(rowid,number,name,dca01Channels,dca02Channels,dca04Channels,dca05Channels,dca06Channels,dca07Channels,dca08Channels,dca01Label,dca02Label,dca04Label,dca05Label,dca06Label,dca07Label,dca08Label) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     with open(scenes, "r") as f:
-        data = [x for x in csv.reader(f)][2:21]
+        data = [x for x in csv.reader(f)][2:]
         cur.execute('UPDATE config SET value=? WHERE param=?',
                     (','.join([row[2] for row in data[1:]]), 'channels'))
         for row in data[1:]:
