@@ -1,4 +1,5 @@
 *.scratch-*
 *.csv
 *.tmix
+!config.csv
 .vscode/settings.json
