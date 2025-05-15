@@ -3,3 +3,4 @@
 *.tmix
 !config.csv
 .vscode/settings.json
+!shows/*
