@@ -4,3 +4,4 @@
 !config.csv
 .vscode/settings.json
 !shows/*
+.DS_store
